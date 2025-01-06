@@ -760,6 +760,7 @@ func (c *sipOutbound) attemptInvite(ctx context.Context, callID sip.CallIDHeader
 	for _, h := range headers {
 		req.AppendHeader(h)
 	}
+	fmt.Println("request is: ", req.String())
 
 	tx, err := c.c.sipCli.TransactionRequest(req)
 	if err != nil {
