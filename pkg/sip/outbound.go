@@ -100,12 +100,16 @@ func (c *Client) newCall(ctx context.Context, conf *config.Config, log logger.Lo
 		callInfo: callInfo,
 		ioClient: ioClient,
 	}
+	displayName, ok := sipConf.headers["DisplayName"]
+	if !ok {
+		displayName = "unknown"
+	}
 	call.cc = c.newOutbound(log, id, URI{
 		User:      sipConf.from,
 		Host:      sipConf.host,
 		Addr:      contact.Addr,
 		Transport: tr,
-	}, contact, func(headers map[string]string) map[string]string {
+	}, contact, displayName, func(headers map[string]string) map[string]string {
 		c := call
 		if len(c.sipConf.attrsToHeaders) == 0 {
 			return headers
@@ -533,10 +537,10 @@ func (c *outboundCall) transferCall(ctx context.Context, transferTo string, head
 	return nil
 }
 
-func (c *Client) newOutbound(log logger.Logger, id LocalTag, from, contact URI, getHeaders setHeadersFunc) *sipOutbound {
+func (c *Client) newOutbound(log logger.Logger, id LocalTag, from, contact URI, displayName string, getHeaders setHeadersFunc) *sipOutbound {
 	from = from.Normalize()
 	fromHeader := &sip.FromHeader{
-		DisplayName: from.User,
+		DisplayName: displayName,
 		Address:     *from.GetURI(),
 		Params:      sip.NewParams(),
 	}
@@ -760,7 +764,6 @@ func (c *sipOutbound) attemptInvite(ctx context.Context, callID sip.CallIDHeader
 	for _, h := range headers {
 		req.AppendHeader(h)
 	}
-	fmt.Println("request is: ", req.String())
 
 	tx, err := c.c.sipCli.TransactionRequest(req)
 	if err != nil {
