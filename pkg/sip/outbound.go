@@ -545,7 +545,8 @@ func (c *Client) newOutbound(log logger.Logger, id LocalTag, from, contact URI, 
 		Params:      sip.NewParams(),
 	}
 	contactHeader := &sip.ContactHeader{
-		Address: *contact.GetContactURI(),
+		Address:     *contact.GetContactURI(),
+		DisplayName: displayName,
 	}
 	fromHeader.Params.Add("tag", string(id))
 	return &sipOutbound{
