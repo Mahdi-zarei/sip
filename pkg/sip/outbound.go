@@ -104,6 +104,7 @@ func (c *Client) newCall(ctx context.Context, conf *config.Config, log logger.Lo
 	if !ok {
 		displayName = "unknown"
 	}
+	contact.User = displayName
 	call.cc = c.newOutbound(log, id, URI{
 		User:      sipConf.from,
 		Host:      sipConf.host,
